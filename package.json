@@ -1,0 +1,28 @@
+{
+  "name": "identiverse-2025-ics",
+  "version": "1.0.0",
+  "description": "Script to generate an ICS file for the Identiverse 2025 conference agenda",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cleanup": "node src/cleanupOldScreenshots.js"
+  },
+  "dependencies": {
+    "fs-extra": "^11.1.1",
+    "ical": "^0.8.0",
+    "ical-generator": "^4.1.0",
+    "luxon": "^3.4.3",
+    "playwright": "^1.40.0"
+  },
+  "keywords": [
+    "calendar",
+    "ics",
+    "conference",
+    "identiverse",
+    "scraper"
+  ],
+  "author": "",
+  "license": "MIT"
+}
