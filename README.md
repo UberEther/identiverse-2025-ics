@@ -11,6 +11,10 @@ A tool that scrapes the [Identiverse 2025 conference agenda](https://identiverse
 - **Maintains stable UIDs to prevent duplicate events when reimporting** after schedule changes
 - Automatically organizes screenshots in timestamped folders for better debugging
 
+## Release Notes
+
+See our [Release Notes](RELEASE_NOTES.md) for details about the current version and changes.
+
 ## Getting Started
 
 ### Prerequisites
@@ -105,7 +109,7 @@ identiverse-2025-ics/
     └── sampleData.js               # Sample data for testing
 ```
 
-## Version Control
+## Version Control & Releases
 
 The project includes a `.gitignore` file that excludes:
 - Node.js dependencies and logs
