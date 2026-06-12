@@ -12,89 +12,43 @@ export class DataProcessor {
    */
   processSessionData(rawSessions) {
     console.log(`Processing ${rawSessions.length} sessions...`);
-    
+
     return rawSessions.map(session => {
+      const title = session.title || 'Untitled Session';
+
+      // Skip sessions without proper time information
+      if (!session.date || !session.time) {
+        console.warn(`Skipping session with incomplete time info: ${title}`);
+        return null;
+      }
+
       try {
-        // Extract the date and time
-        const date = session.date || '';
-        const time = session.time || '';
-        const title = session.title || 'Untitled Session';
-        
-        // Skip sessions without proper time information
-        if (!date || !time) {
-          console.warn(`Skipping session with incomplete time info: ${title}`);
-          return null;
-        }
-        
-        try {
-          // Parse the Las Vegas time
-          const { start, end } = parseLasVegasTime(date, time);
-          
-          // Fall back to a default 1-hour duration if something goes wrong with time parsing
-          if (!start || !end) {
-            console.warn(`Invalid time format for session "${title}". Using default 1-hour duration.`);
-            // Create default times (today at noon for 1 hour)
-            const defaultStart = new Date();
-            defaultStart.setHours(12, 0, 0, 0);
-            const defaultEnd = new Date(defaultStart);
-            defaultEnd.setHours(13, 0, 0, 0);
-            
-            // Extract session ID if available (for stable UIDs)
-            let sessionId = null;
-            if (session.detailsUrl) {
-              const idMatch = session.detailsUrl.match(/idvid=(\d+)/);
-              if (idMatch && idMatch[1]) {
-                sessionId = idMatch[1];
-              }
-            }
-            
-            // Create a processed session object with default times
-            return {
-              title,
-              description: formatDescription(session),
-              location: session.location || 'TBD',
-              startTime: defaultStart,
-              endTime: defaultEnd,
-              uid: generateUID(title, defaultStart, sessionId),
-              type: session.type || 'Session',
-              sessionId: sessionId,
-              isDefaultTime: true // Flag that this is using a default time
-            };
-          }
-          
-          // Extract session ID if available (for stable UIDs)
-          let sessionId = null;
-          if (session.detailsUrl) {
-            const idMatch = session.detailsUrl.match(/idvid=(\d+)/);
-            if (idMatch && idMatch[1]) {
-              sessionId = idMatch[1];
-            }
-          }
-          
-          // Create a processed session object
-          const processedSession = {
-            title,
-            description: formatDescription(session),
-            location: session.location || 'TBD',
-            startTime: start,
-            endTime: end,
-            uid: generateUID(title, start, sessionId),
-            type: session.type || 'Session',
-            sessionId: sessionId
-          };
-          
-          return processedSession;
-        } catch (timeError) {
-          console.error(`Error parsing time for session "${title}":`, timeError);
-          return null;
-        }
+        const { start, end } = parseLasVegasTime(session.date, session.time);
+
+        // Session ID for stable UIDs: prefer the grid's data-sessionid,
+        // fall back to an idvid= match in the details URL
+        const sessionId =
+          session.sessionId ||
+          session.detailsUrl?.match(/idvid=(\d+)/)?.[1] ||
+          null;
+
+        return {
+          title,
+          description: formatDescription(session),
+          location: session.location || 'Mandalay Bay, Las Vegas, NV',
+          startTime: start,
+          endTime: end,
+          uid: generateUID(title, start, sessionId),
+          type: session.type || 'Session',
+          sessionId,
+        };
       } catch (error) {
-        console.error(`Error processing session:`, error);
+        console.error(`Error processing session "${title}":`, error);
         return null;
       }
     }).filter(Boolean); // Remove null entries
   }
-  
+
   /**
    * Group sessions by date for easier display and handling
    * @param {Array} sessions - Array of processed session objects
@@ -102,25 +56,25 @@ export class DataProcessor {
    */
   groupSessionsByDate(sessions) {
     const grouped = {};
-    
+
     for (const session of sessions) {
       const dateStr = session.startTime.toFormat('yyyy-MM-dd');
-      
+
       if (!grouped[dateStr]) {
         grouped[dateStr] = [];
       }
-      
+
       grouped[dateStr].push(session);
     }
-    
+
     // Sort sessions within each day by start time
     for (const date in grouped) {
       grouped[date].sort((a, b) => a.startTime.toMillis() - b.startTime.toMillis());
     }
-    
+
     return grouped;
   }
-  
+
   /**
    * Process and organize all session data
    * @param {Array} rawSessions - Raw session data from scraper
@@ -129,7 +83,7 @@ export class DataProcessor {
   processAll(rawSessions) {
     const processedSessions = this.processSessionData(rawSessions);
     const groupedSessions = this.groupSessionsByDate(processedSessions);
-    
+
     return {
       sessions: processedSessions,
       groupedSessions

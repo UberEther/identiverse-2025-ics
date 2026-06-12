@@ -5,7 +5,7 @@
 import fs from 'fs';
 import ical from 'ical';
 
-const icsFilePath = './output/identiverse2025.ics';
+const icsFilePath = './output/identiverse2026.ics';
 
 // Read and parse the ICS file
 try {

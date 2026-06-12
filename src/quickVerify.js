@@ -3,7 +3,7 @@
  */
 import fs from 'fs';
 
-const icsFilePath = './output/identiverse2025.ics';
+const icsFilePath = './output/identiverse2026.ics';
 const icsContent = fs.readFileSync(icsFilePath, 'utf8');
 
 // Find all event starts

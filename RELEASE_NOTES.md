@@ -1,42 +1,40 @@
-# Identiverse 2025 Conference Calendar Generator v1.0.0
+# Identiverse 2026 Conference Calendar Generator v2.0.0
 
-*Released: March 15, 2025*
+*Released: June 12, 2026*
 
-We're excited to announce the official 1.0.0 release of the Identiverse 2025 Conference Calendar Generator. This tool makes it easy to import the Identiverse conference schedule into your preferred calendar application, ensuring you never miss an important session.
+Version 2.0.0 updates the generator for the Identiverse 2026 conference (June 15–18, 2026, Mandalay Bay, Las Vegas) and replaces the browser-automation scraper with a much simpler and faster HTTP-based one.
 
-## Key Features
+## What's New
 
-- **Complete Session Extraction**: Automatically extracts all sessions from the Identiverse 2025 conference website
-- **Timezone Support**: Correctly handles Las Vegas (PDT) timezone for all events
-- **Session Categorization**: Identifies and categorizes different session types (Workshops, Keynotes, Panels, etc.)
-- **Stable Event IDs**: Uses consistent unique identifiers to prevent duplicate events when reimporting after schedule updates
-- **Comprehensive Event Details**: Includes locations, descriptions, and speaker information for all sessions
-- **Debugging Tools**: Saves screenshots in timestamped folders for easier troubleshooting
+- **Identiverse 2026 support**: Scrapes https://identiverse.com/idv26/agenda/ and produces `identiverse-2026-agenda.ics` covering all 263 published sessions across June 15–18
+- **No more browser automation**: The 2026 site is fully server-rendered, so Playwright (and its visible browser windows, screenshots, and multi-minute runtimes) is replaced by plain `fetch` + cheerio. A full run takes about a minute
+- **Real room locations**: Session detail pages publish actual rooms (e.g. "Mandalay Bay K", "Breakers L", "NHAI Pavilion Theater"); 262 of 263 events carry a specific room
+- **Inline speakers**: The 2026 agenda includes speaker names, titles, and companies, which are formatted cleanly into event descriptions
+- **Standards-compliant ICS**: Text values are now escaped per RFC 5545 (newlines, commas, semicolons) and lines are folded at 75 octets, fixing import issues strict parsers had with the 2025 file
+- **Test suite**: `npm test` runs unit tests for the time parser, UID generator, ICS escaping/folding, and the HTML parsers (tested against fixtures captured from the live 2026 site)
 
-## Technical Highlights
+## Unchanged
 
-- Built with Node.js and modern JavaScript
-- Uses Playwright for robust web scraping
-- Implements the iCalendar (ICS) format standard for maximum compatibility
-- Organizes debugging screenshots in timestamped directories
-- Includes utilities for cleaning up temporary files
-- Proper version control configuration with .gitignore
+- The three-stage pipeline (scrape → process → generate) and ICS event structure
+- Stable UID scheme (`identiverse-2026-event-<session-id>@identiverse.com`) so reimporting after schedule changes updates events instead of duplicating them
+- Las Vegas timezone handling (PDT / America/Los_Angeles with VTIMEZONE definition)
+
+## Removed
+
+- Playwright, screenshot capture, and the screenshot cleanup utility
+- Fallback "fake session" generation — if the site can't be parsed, the tool now fails loudly instead of emitting invented events
+- Unused dependencies (`playwright`, `ical-generator`)
 
 ## Getting Started
 
 1. Clone the repository
 2. Install dependencies with `npm install`
 3. Run the generator with `npm start`
-4. Import the generated `output/identiverse2025.ics` file into your calendar application
-
-For cleanup of debugging files:
-```
-npm run cleanup
-```
+4. Import the generated `output/identiverse2026.ics` (or the committed `identiverse-2026-agenda.ics`) into your calendar application
 
 ## Compatibility
 
-The generated ICS file has been tested with:
+The generated ICS file targets:
 - Google Calendar
 - Apple Calendar
 - Microsoft Outlook
@@ -45,42 +43,13 @@ The generated ICS file has been tested with:
 ## Known Limitations
 
 - The tool depends on the current structure of the Identiverse website
-- Some sessions may have incomplete information if the website doesn't provide it
-
-## Roadmap for Future Versions
-
-- Add filtering options for specific session types
-- Support for exporting to other calendar formats
-- Command-line arguments for customization
-- Incremental updates that only process changes
-
-## Acknowledgements
-
-- Thanks to the Identiverse conference organizers for making their schedule available online
-- Built using open-source libraries including Playwright, Luxon, and ical-generator
+- "The Exchange" has no published room, so it uses the venue-level location
+- Sessions may have incomplete information if the website doesn't provide it
 
 ---
 
-### Full Changelog
+# Identiverse 2025 Conference Calendar Generator v1.0.0
 
-**Features:**
-- Initial implementation of web scraper for Identiverse conference agenda
-- Implementation of ICS file generation with proper timezone support
-- Multi-day event support
-- Session detail extraction from individual event pages
-- Error handling and recovery mechanisms
-- Screenshot organization in timestamped directories
-- Cleanup utility for temporary files
+*Released: March 15, 2025*
 
-**Technical Improvements:**
-- Proper error handling for network issues and HTML parsing
-- Batched processing to avoid rate limiting
-- Stable UID generation for update-friendly calendar entries
-- Comprehensive debugging capabilities
-- Version control configuration
-
-**Documentation:**
-- Added comprehensive README
-- Added Git history management guide
-- Included cleanup instructions
-- Added release notes
+Initial release: Playwright-based scraper for the Identiverse 2025 agenda with ICS generation, Las Vegas timezone support, session categorization, and stable UIDs. The 2025 calendar artifact is preserved at `identiverse-2025-agenda.ics`.

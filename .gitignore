@@ -9,10 +9,6 @@ package-lock.json
 yarn.lock
 .npm/
 
-# Screenshots
-*.png
-screenshots/
-
 # Generated output
 output/
 
